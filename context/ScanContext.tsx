@@ -1,27 +1,8 @@
-import React, { createContext, Dispatch, ReactNode, SetStateAction, useState, useRef, Ref } from "react";
+import React, { createContext,  ReactNode, useState, useRef } from "react";
 import * as ImageManipulator from "expo-image-manipulator";
 import { pollMindeeJob, sendImageToMindee } from "@/services";
-
-interface ScanData {
-  photoUri: string | null;
-  croppedUri: string | null;
-}
-
-interface ScanContextProps {
-  // State and Refs
-  scan: ScanData;
-  setScan: Dispatch<SetStateAction<ScanData>>;
-  cameraRef: Ref<any>;
-
-  statusText: string;
-  setStatusText: Dispatch<SetStateAction<string>>;
-  isLoading: boolean;
-  setIsLoading: Dispatch<SetStateAction<boolean>>;
-
-  // Methods
-  setLayout: Dispatch<SetStateAction<{ width: number; height: number }>>;
-  takePicture: () => Promise<void>;
-}
+import { IForm, ScanContextProps, ScanData } from "@/types";
+import { mapMindeeFieldsToForm } from "@/utils";
 
 export const ScanContext = createContext<ScanContextProps | undefined>(undefined);
 
@@ -31,6 +12,21 @@ export const ScanProvider = ({ children }: { children: ReactNode }) => {
   const cameraRef = useRef<any>(null);
   const [statusText, setStatusText] = useState<string>('');
   const [isLoading, setIsLoading] = useState<boolean>(false);
+  const [form, setForm] = useState<IForm>({
+    name: '',
+    firstLastName: '',
+    secondLastName: '',
+    gender: '',
+    birthDate: {
+      day: '',
+      month: '',
+      year: '',
+    },
+    idNumber: '',
+    nationality: '',
+    typeOfDocument: '',
+    supportNumber: '',
+  });
 
   const takePicture = async (): Promise<void> => {
     if (!cameraRef.current || layout.width === 0) return;
@@ -86,8 +82,26 @@ export const ScanProvider = ({ children }: { children: ReactNode }) => {
     setStatusText('Processing document...');
     const data = await pollMindeeJob(response.job.polling_url);
 
+    if(data && data.fields) {
+      fillFormWithInference(data.fields);
+    }
+    
+    setScan({ photoUri: "", croppedUri: "" });
     setIsLoading(false);
   };
+
+
+  const fillFormWithInference  = (fields: any) => {
+    const partial = mapMindeeFieldsToForm(fields);
+
+    setForm(prev => {
+      const next = { ...prev, ...partial };
+      if (partial.birthDate) {
+        next.birthDate = { ...prev.birthDate, ...partial.birthDate };
+      }
+      return next;
+    });
+  }
 
   return (
     <ScanContext.Provider value={{ 
@@ -99,7 +113,9 @@ export const ScanProvider = ({ children }: { children: ReactNode }) => {
       statusText, 
       setStatusText,
       isLoading,
-      setIsLoading
+      setIsLoading,
+      form,
+      setForm
     }}>
       {children}
     </ScanContext.Provider>

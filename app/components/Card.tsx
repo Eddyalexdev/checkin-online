@@ -23,7 +23,7 @@ const Card = ({ title, data }: IProps) => {
     await takePicture()
     
     if(isLoading === false) {
-      console.log('Navigating to scan screen');
+      router.push('/screens/PersonalInfoScreen');
     }
   }
 

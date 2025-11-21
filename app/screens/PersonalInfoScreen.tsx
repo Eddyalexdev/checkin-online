@@ -1,9 +1,11 @@
 import { StyleSheet, Text, View } from "react-native"
 import { Button, CustomInput } from "../components";
 import { useForm } from "react-hook-form";
+import { useScan } from "../hooks";
  
 const PersonalInfoScreen = () => {
   const { control, handleSubmit, formState: { errors } } = useForm();
+  const { form } = useScan();
 
   return (
     <View style={styles.form}>
