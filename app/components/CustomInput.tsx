@@ -1,11 +1,11 @@
 import { StyleSheet, TextInput, View, Text, DimensionValue } from "react-native"
-import { Control, Controller, FieldValues } from 'react-hook-form';
+import { Control, Controller, FieldValues, Path } from 'react-hook-form';
 import { Picker } from "@react-native-picker/picker";
 
 // Define Props
 interface IProps {
-  control: Control<FieldValues, any, FieldValues>;
-  name: string;
+  control: Control<any>;
+  name: Path<any>;
   placeholder: string;
   rules?: Object,
   isPicker?: boolean;

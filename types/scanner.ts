@@ -37,6 +37,6 @@ export interface ScanContextProps {
 
   // Methods
   setLayout: Dispatch<SetStateAction<{ width: number; height: number }>>;
-  takePicture: () => Promise<void>;
+  takePicture: () => Promise<{ status: boolean }>;
 }
 

@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React from 'react';
 
 // Data
 import data from '../../data/requirements.json';
@@ -7,9 +7,15 @@ import data from '../../data/requirements.json';
 import { Card, Scanner } from '../components';
 import { View, StyleSheet, Text } from 'react-native';
 import { useCameraPermissions, PermissionStatus } from 'expo-camera';
+import { useRouter } from 'expo-router';
 
-export default function FrontScanScreen() {
+const FrontScanScreen = () => {
   const [permission, requestPermission] = useCameraPermissions();
+  const router = useRouter();
+
+  const handleScan = () => {
+    router.push({ pathname: '/screens/BackScanScreen' });
+  }
 
   // Check permission status
   if (!permission) {
@@ -33,6 +39,7 @@ export default function FrontScanScreen() {
         <Card 
           title="Escanea la parte delantera" 
           data={data.front}
+          handleScan={handleScan}
         />
       </View>
     </View>
@@ -62,4 +69,6 @@ const styles = StyleSheet.create({
     paddingHorizontal: 64,
   },
 });
+
+export default FrontScanScreen;
 

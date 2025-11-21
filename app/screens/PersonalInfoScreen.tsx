@@ -2,10 +2,29 @@ import { StyleSheet, Text, View } from "react-native"
 import { Button, CustomInput } from "../components";
 import { useForm } from "react-hook-form";
 import { useScan } from "../hooks";
+import { useEffect } from "react";
+import { IForm } from "@/types";
  
 const PersonalInfoScreen = () => {
-  const { control, handleSubmit, formState: { errors } } = useForm();
-  const { form } = useScan();
+  const { form: contextForm } = useScan();
+
+  const { control, handleSubmit, formState: { errors }, reset } = useForm<IForm>({
+    defaultValues: contextForm ?? {
+      name: '',
+      firstLastName: '',
+      secondLastName: '',
+      gender: '',
+      birthDate: {
+        day: '',
+        month: '',
+        year: '',
+      },
+    },
+  });
+
+  useEffect(() => {
+
+  }, [contextForm, reset])
 
   return (
     <View style={styles.form}>

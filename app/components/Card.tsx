@@ -3,28 +3,27 @@ import { Button, CheckboxRounded } from './';
 import { AntDesign } from '@expo/vector-icons'
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import { IRequirement } from '@/types';
-import { useRouter } from 'expo-router';
 import { useScan } from '../hooks';
 
 // Props interface
 interface IProps {
   title: string;
   data: IRequirement[];
+  handleScan?: () => void;
 }
 
 // Component
-const Card = ({ title, data }: IProps) => {
+const Card = ({ title, data, handleScan }: IProps) => {
   const [requirements, setRequirements] = useState<IRequirement[]>([]);
-  const router = useRouter();
   const { takePicture, isLoading, statusText } = useScan();
 
   // Functions
-  const handleScan = async () => {
-    await takePicture()
+  const handleExecuteScan = async () => {
+    const { status } = await takePicture();
+
+    if(!status) return;
     
-    if(isLoading === false) {
-      router.push('/screens/PersonalInfoScreen');
-    }
+    handleScan && handleScan();
   }
 
   // Update requirements state when data prop changes
@@ -48,7 +47,12 @@ const Card = ({ title, data }: IProps) => {
     <View style={styles.card}>
       {
         isLoading ?
-          <ActivityIndicator size="large" color="#00ccc0" />
+          <View style={{ marginBottom: 16, alignItems: 'center', height: 200 }}>
+            <ActivityIndicator size="large" color="#00ccc0" />
+            <Text style={{ textAlign: 'center', color: '#555', marginBottom: 8, fontSize: 16 }}>
+              {statusText}
+            </Text>
+          </View>
           :
           <AntDesign
             name="scan"
@@ -58,27 +62,32 @@ const Card = ({ title, data }: IProps) => {
           />
       }
 
-      <Text style={styles.cardTitle}>{ title }</Text>
 
       {/* List of requeirements with checkboxes */}
-      <View style={styles.cardCheckboxContainer}>
-        {
-          requirements?.map((requirement) => (
-            <CheckboxRounded 
-              key={requirement.id}
-              id={requirement.id}
-              text={requirement.text}
-              checked={requirement.checked}
-              onToggle={() => toggleRequirement(requirement.id)}
-            />
-          ))
-        }
-      </View>
+      {
+        !isLoading &&
+        <>
+          <Text style={styles.cardTitle}>{ title }</Text>
+          <View style={styles.cardCheckboxContainer}>
+            {
+              requirements?.map((requirement) => (
+                <CheckboxRounded 
+                  key={requirement.id}
+                  id={requirement.id}
+                  text={requirement.text}
+                  checked={requirement.checked}
+                  onToggle={() => toggleRequirement(requirement.id)}
+                />
+              ))
+            }
+          </View>
+        </>
+      }
 
       <Button 
         text="Escanear" 
         disabled={!allChecked || isLoading} 
-        onClick={handleScan}
+        onClick={handleExecuteScan}
       />
     </View>
   )

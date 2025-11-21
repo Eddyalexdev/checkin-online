@@ -4,8 +4,6 @@ const apiKey = 'md_mvqHksE6pMTreijv9ZX2ETgio2Tw5GEt';
 const modelId = 'd9beeffa-b2a6-4f75-9b7c-dafa7e824946';
 
 export const sendImageToMindee = async (uri: string) => {
-
-  // Leer archivo como base64
   const fileBase64 = await FileSystem.readAsStringAsync(uri, { encoding: 'base64' });
 
   const formData = new FormData();

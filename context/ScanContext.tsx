@@ -28,14 +28,27 @@ export const ScanProvider = ({ children }: { children: ReactNode }) => {
     supportNumber: '',
   });
 
-  const takePicture = async (): Promise<void> => {
-    if (!cameraRef.current || layout.width === 0) return;
+  const takePicture = async (): Promise<{ status: boolean }> => {
+    if (!cameraRef.current || layout.width === 0) return { status: false };
 
     setIsLoading(true);
     setStatusText('Taking picture...');
     const photo = await cameraRef.current.takePictureAsync({ quality: 1, base64: false });
 
-    const BOX = { top: 0.12, left: 0.05, width: 0.9, height: 230 };
+    const BOX = { 
+      topRatio: 50 / layout.height, 
+      leftRatio: 0.05, 
+      widthRatio: 0.9, 
+      heightRatio: 230 / layout.height 
+    };
+
+    const boxPx = {
+      top: Math.round(BOX.topRatio * layout.height),
+      left: Math.round(BOX.leftRatio * layout.width),
+      width: Math.round(BOX.widthRatio * layout.width),
+      height: Math.round(BOX.heightRatio * layout.height),
+    };
+
     const previewRatio = layout.width / layout.height;
     const photoRatio = photo.width / photo.height;
 
@@ -51,12 +64,10 @@ export const ScanProvider = ({ children }: { children: ReactNode }) => {
       offsetY = (photo.height - layout.height * scaleFactor) / 2;
     }
 
-    const boxHeightRatio = BOX.height / layout.height;
-
-    let originX = Math.round(BOX.left * layout.width * scaleFactor + offsetX);
-    let originY = Math.round(BOX.top * layout.height * scaleFactor + offsetY);
-    let width = Math.round(BOX.width * layout.width * scaleFactor);
-    let height = Math.round(boxHeightRatio * layout.height * scaleFactor);
+    let originX = Math.round(boxPx.left * scaleFactor + offsetX);
+    let originY = Math.round(boxPx.top * scaleFactor + offsetY);
+    let width = Math.round(boxPx.width * scaleFactor);
+    let height = Math.round(boxPx.height * scaleFactor);
 
     const clamp = (v: number, min: number, max: number) => Math.max(min, Math.min(v, max));
     originX = clamp(originX, 0, photo.width - 1);
@@ -76,18 +87,29 @@ export const ScanProvider = ({ children }: { children: ReactNode }) => {
     setStatusText('Sending image to Mindee...');
     const response = await sendImageToMindee(result.uri);
 
-    if(!response) return;
+    if(!response) return { status: false };
 
     // Polling Mindee Job
     setStatusText('Processing document...');
+
+    if(!response.job || response.job.status === 'Failed') {
+      setIsLoading(false);
+      return { status: false };
+    }
+
     const data = await pollMindeeJob(response.job.polling_url);
 
     if(data && data.fields) {
       fillFormWithInference(data.fields);
+    } else {
+      setIsLoading(false);
+      setStatusText('Failed to extract data from document.');
+      return { status: false };
     }
-    
+
     setScan({ photoUri: "", croppedUri: "" });
     setIsLoading(false);
+    return { status: true };
   };
 
 
