@@ -1,8 +1,9 @@
-import { View, StyleSheet, Text } from 'react-native';
+import { View, StyleSheet, Text, ActivityIndicator } from 'react-native';
 import { Button, CheckboxRounded } from './';
 import { AntDesign } from '@expo/vector-icons'
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import { IRequirement } from '@/types';
+import { useRouter } from 'expo-router';
 
 // Props interface
 interface IProps {
@@ -13,10 +14,14 @@ interface IProps {
 // Component
 const Card = ({ title, data }: IProps) => {
   const [requirements, setRequirements] = useState<IRequirement[]>([]);
+  const [isScanning, setIsScanning] = useState(false);
+  const router = useRouter();
 
   // Functions
   const handleScan = () => {
-    console.log('Scanning...');
+    setIsScanning(true);
+    router.push({ pathname: '/screens/PersonalInfoScreen' });
+    setIsScanning(false);
   }
 
   // Update requirements state when data prop changes
@@ -38,12 +43,17 @@ const Card = ({ title, data }: IProps) => {
 
   return (
     <View style={styles.card}>
-      <AntDesign
-        name="scan"
-        size={34}
-        color="#000000"
-        style={{ alignSelf: 'center', marginBottom: 16 }}
-      />
+      {
+        isScanning ?
+          <ActivityIndicator size="large" color="#00ccc0" />
+          :
+          <AntDesign
+            name="scan"
+            size={34}
+            color="#000000"
+            style={{ alignSelf: 'center', marginBottom: 16 }}
+          />
+      }
 
       <Text style={styles.cardTitle}>{ title }</Text>
 

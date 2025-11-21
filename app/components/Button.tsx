@@ -9,14 +9,13 @@ const Button = ({ text, disabled, onClick }: IProps) => {
   return (
     <TouchableOpacity
       activeOpacity={0.7}
-      onPress={() => {
-        console.log('Button pressed');
-        if (disabled) return;
-        onClick && onClick();
-      }}
       disabled={disabled}
     >
       <Pressable
+        onPress={() => {
+          if (disabled) return;
+          onClick && onClick();
+        }}
         style={[
           styles.button,
           disabled && styles.buttonDisabled,
