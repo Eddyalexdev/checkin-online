@@ -8,7 +8,7 @@ const DocumentInfoScreen = () => {
   return (
     <View style={styles.form}>
       {/* Title and description */}
-      <Text style={styles.formTitle}>Datos personales</Text>
+      <Text style={styles.formTitle}>Datos de tu documento de identidad</Text>
       <Text style={styles.description}>Echále un ojo a todos los campos para verificar que los datos sean correctos.</Text>
 
       {/* Formulary */}

@@ -1,5 +1,4 @@
-import { StyleSheet, Text, View, TextInput } from "react-native"
-import { Picker } from "@react-native-picker/picker";
+import { StyleSheet, Text, View } from "react-native"
 import { Button, CustomInput } from "../components";
 import { useForm } from "react-hook-form";
  

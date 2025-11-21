@@ -4,6 +4,7 @@ import { AntDesign } from '@expo/vector-icons'
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import { IRequirement } from '@/types';
 import { useRouter } from 'expo-router';
+import { useScan } from '../hooks';
 
 // Props interface
 interface IProps {
@@ -14,14 +15,16 @@ interface IProps {
 // Component
 const Card = ({ title, data }: IProps) => {
   const [requirements, setRequirements] = useState<IRequirement[]>([]);
-  const [isScanning, setIsScanning] = useState(false);
   const router = useRouter();
+  const { takePicture, isLoading, statusText } = useScan();
 
   // Functions
-  const handleScan = () => {
-    setIsScanning(true);
-    router.push({ pathname: '/screens/PersonalInfoScreen' });
-    setIsScanning(false);
+  const handleScan = async () => {
+    await takePicture()
+    
+    if(isLoading === false) {
+      console.log('Navigating to scan screen');
+    }
   }
 
   // Update requirements state when data prop changes
@@ -44,7 +47,7 @@ const Card = ({ title, data }: IProps) => {
   return (
     <View style={styles.card}>
       {
-        isScanning ?
+        isLoading ?
           <ActivityIndicator size="large" color="#00ccc0" />
           :
           <AntDesign
@@ -74,7 +77,7 @@ const Card = ({ title, data }: IProps) => {
 
       <Button 
         text="Escanear" 
-        disabled={!allChecked} 
+        disabled={!allChecked || isLoading} 
         onClick={handleScan}
       />
     </View>
