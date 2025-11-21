@@ -1,11 +1,17 @@
 import React from 'react';
-import { View, StyleSheet, Text, TextInput } from 'react-native';
-import { CameraView } from 'expo-camera';
+
+// Data
+import data from '../../data/requirements.json';
+
+// Components
+import { Card, Scanner } from '../components';
+import { View, StyleSheet, Text } from 'react-native';
 import { useCameraPermissions, PermissionStatus } from 'expo-camera';
 
 export default function FrontScanScreen() {
   const [permission, requestPermission] = useCameraPermissions();
 
+  // Check permission status
   if (!permission) {
     requestPermission();
     return null;
@@ -14,35 +20,39 @@ export default function FrontScanScreen() {
   if (permission.status !== PermissionStatus.GRANTED) {
     return (
       <View style={styles.container}>
-        <Text style={styles.text}>Camera access is required to use this feature.</Text>
+        <Text>Camera access is required to use this feature.</Text>
       </View>
     );
   }
 
   return (
-    <View style={styles.container}>
-      <CameraView style={styles.camera} />
-      <View style={styles.buttonContainer}>
-        <Text style={styles.text}>Escanea la parte delantera</Text>
-        <View style={styles.checkboxContainer}>
-          <TextInput />
-          <TextInput />
-        </View>
+    <View style={styles.view}>
+      <View style={styles.container}>
+        <Scanner />
+
+        <Card 
+          title="Escanea la parte delantera" 
+          data={data.front}
+        />
       </View>
     </View>
   );
 }
 
 const styles = StyleSheet.create({
+  view: {
+    flex: 1,
+    backgroundColor: '#FFFFFF',
+  },
+  
   container: {
-    flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
-    backgroundColor: '#EEEEEE',
+    borderTopEndRadius: 20,
+    borderTopLeftRadius: 20,
+    overflow: 'hidden',
+    height: '100%',
+    width: '100%',
   },
-  camera: {
-    flex: 1,
-  },
+
   buttonContainer: {
     position: 'absolute',
     bottom: 64,
@@ -51,18 +61,5 @@ const styles = StyleSheet.create({
     width: '100%',
     paddingHorizontal: 64,
   },
-
-  text: {
-    fontSize: 24,
-    fontWeight: 'bold',
-    color: '#000000',
-    textAlign: 'center',
-  },
-
-  checkboxContainer: {
-    display: 'flex',
-    flexDirection: 'column',
-    gap: 8
-  }
 });
 

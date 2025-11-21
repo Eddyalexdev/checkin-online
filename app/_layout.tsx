@@ -1,23 +1,14 @@
 import React from 'react';
 import { Stack } from 'expo-router';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
-import { StatusBar } from 'expo-status-bar';
 
 export default function Layout() {
   return (
     <SafeAreaProvider>
-      <Stack initialRouteName='screens/FrontScanScreen'>
-        <Stack.Screen 
-          name="screens/FrontScanScreen" 
-          options={{ title: 'Checkin online' }} 
-        />
-        <Stack.Screen 
-          name="screens/BackScanScreen"
-          options={{ title: 'Checkin online' }} 
-        />
+      <Stack initialRouteName="screens/FrontScanScreen">
+        {/* Front Scanner */}
+        <Stack.Screen name="screens/FrontScanScreen" options={{ title: 'Welcome to checkin online' }} />
       </Stack>
-
-      <StatusBar style="auto" />
     </SafeAreaProvider>
   );
 }

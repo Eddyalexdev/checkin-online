@@ -1,0 +1,31 @@
+{
+  "front": [
+    {
+      "id": 1,
+      "text": "Centra tu documento dentro del marco blanco",
+      "checked": false
+    },
+    {
+      "id": 2,
+      "text": "La iluminación debe ser buena",
+      "checked": false
+    }
+  ],
+  "back": [
+    {
+      "id": 1,
+      "text": "Centra tu documento dentro del marco blanco",
+      "checked": false
+    },
+    {
+      "id": 2,
+      "text": "La iluminación debe ser buena",
+      "checked": false
+    },
+    {
+      "id": 3,
+      "text": "Que la informacion sea legible",
+      "checked": false
+    }
+  ]
+}
