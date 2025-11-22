@@ -1,6 +1,4 @@
-# Bienvenido a tu aplicación de Expo 👋
-
-Este es un proyecto de [Expo](https://expo.dev) creado con [`create-expo-app`](https://www.npmjs.com/package/create-expo-app).
+# Checkin Online - Prueba Tecnica
 
 ## Comienza
 
