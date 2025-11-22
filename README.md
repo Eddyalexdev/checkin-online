@@ -1,50 +1,91 @@
-# Welcome to your Expo app 👋
+# Bienvenido a tu aplicación de Expo 👋
 
-This is an [Expo](https://expo.dev) project created with [`create-expo-app`](https://www.npmjs.com/package/create-expo-app).
+Este es un proyecto de [Expo](https://expo.dev) creado con [`create-expo-app`](https://www.npmjs.com/package/create-expo-app).
 
-## Get started
+## Comienza
 
-1. Install dependencies
+1. Instala las dependencias
 
    ```bash
    npm install
    ```
 
-2. Start the app
+2. Inicia la aplicación
 
    ```bash
    npx expo start
    ```
 
-In the output, you'll find options to open the app in a
+En la salida, encontrarás opciones para abrir la aplicación en un
 
-- [development build](https://docs.expo.dev/develop/development-builds/introduction/)
-- [Android emulator](https://docs.expo.dev/workflow/android-studio-emulator/)
-- [iOS simulator](https://docs.expo.dev/workflow/ios-simulator/)
-- [Expo Go](https://expo.dev/go), a limited sandbox for trying out app development with Expo
+- [build de desarrollo](https://docs.expo.dev/develop/development-builds/introduction/)
+- [emulador de Android](https://docs.expo.dev/workflow/android-studio-emulator/)
+- [simulador de iOS](https://docs.expo.dev/workflow/ios-simulator/)
+- [Expo Go](https://expo.dev/go), un entorno limitado para probar el desarrollo de aplicaciones con Expo
 
-You can start developing by editing the files inside the **app** directory. This project uses [file-based routing](https://docs.expo.dev/router/introduction).
+Puedes comenzar a desarrollar editando los archivos dentro del directorio **app**. Este proyecto utiliza [enrutamiento basado en archivos](https://docs.expo.dev/router/introduction).
 
-## Get a fresh project
+## Flujo del Proyecto Check-in
 
-When you're ready, run:
+El flujo que sigue el proyecto es el siguiente:
 
-```bash
-npm run reset-project
-```
+1. **Revisión del Documento de Identidad (Frontal):**
+   - El usuario escanea y valida el documento frontal utilizando la integración con Mindee.
 
-This command will move the starter code to the **app-example** directory and create a blank **app** directory where you can start developing.
+2. **Revisión del Documento de Identidad (Trasero):**
+   - Se repite el proceso con el escaneo y validación del documento trasero.
 
-## Learn more
+3. **Formulario de Información Personal:**
+   - Se envían los datos al formulario personal para completar la información necesaria.
 
-To learn more about developing your project with Expo, look at the following resources:
+4. **Formulario de Documentación:**
+   - Se envían los datos al formulario de documentación para finalizar el proceso.
 
-- [Expo documentation](https://docs.expo.dev/): Learn fundamentals, or go into advanced topics with our [guides](https://docs.expo.dev/guides).
-- [Learn Expo tutorial](https://docs.expo.dev/tutorial/introduction/): Follow a step-by-step tutorial where you'll create a project that runs on Android, iOS, and the web.
+5. **Fin del Proceso:**
+   - Una vez completados ambos formularios, el flujo es finalizado.
 
-## Join the community
+## Compromisos y Decisiones de Diseño
 
-Join our community of developers creating universal apps.
+### 1. Enrutamiento basado en archivos
+Elegimos adoptar el enrutamiento basado en archivos por su simplicidad y alineación con Expo Router. Este enfoque permite:
+- Una estructura de navegación clara y predecible.
+- Depuración simplificada al colocar la lógica de las rutas junto con la implementación del componente.
 
-- [Expo on GitHub](https://github.com/expo/expo): View our open source platform and contribute.
-- [Discord community](https://chat.expo.dev): Chat with Expo users and ask questions.
+**Compromiso:**
+- Introduce limitaciones en escenarios de enrutamiento altamente dinámicos, que podrían no ser lo suficientemente flexibles para ciertos requisitos.
+
+### 2. Context API para la Gestión de Estado
+Se eligió Context API para gestionar el estado global de la aplicación (por ejemplo, ScanContext). Esta decisión permite:
+- Compartir el estado fácilmente entre componentes profundamente anidados.
+- Configuración mínima en comparación con bibliotecas de terceros.
+
+**Compromiso:**
+- No está optimizado para actualizaciones de alta frecuencia, lo que podría causar renderizados innecesarios en escenarios específicos.
+- Podría requerir escalar en el futuro a una biblioteca de gestión de estado más sofisticada como Redux o Zustand para un mejor rendimiento.
+
+### 3. Componente Scanner
+El componente `Scanner` utiliza módulos de Expo para escanear códigos QR. Esta decisión asegura:
+- Integración fluida dentro del ecosistema de Expo.
+- Compatibilidad multiplataforma.
+
+**Compromiso:**
+- Depende en gran medida de la estabilidad de la API de Expo.
+- Personalización limitada en comparación con implementaciones específicas de la plataforma.
+
+### 4. Enfoque de Estilización
+Hemos utilizado `StyleSheet.create` para definir los estilos. Este enfoque:
+- Mejora el rendimiento al garantizar que los estilos sean inmutables.
+- Fomenta definiciones de estilo modulares y reutilizables.
+
+**Compromiso:**
+- Menor flexibilidad en comparación con soluciones como CSS-in-JS.
+- Falta de soporte para temas de forma predeterminada, lo que podría requerir bibliotecas adicionales en el futuro.
+
+### 5. Manejo de Formularios con react-hook-form
+El proyecto utiliza `react-hook-form` para gestionar el estado y la validación de formularios. Esta decisión se tomó debido a:
+- Su excelente rendimiento al reducir renderizados innecesarios.
+- Simplicidad en el manejo de formularios complejos.
+
+**Compromiso:**
+- Curva de aprendizaje para desarrolladores nuevos que no estén familiarizados con la biblioteca.
+

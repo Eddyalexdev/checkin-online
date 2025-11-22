@@ -7,7 +7,7 @@ export default function Layout() {
   return (
     <SafeAreaProvider>
       <ScanProvider>
-        <Stack initialRouteName='screens/PersonalInfoScreen' screenOptions={{ headerTitleAlign: 'center' }}>
+        <Stack initialRouteName='screens/FrontScanScreen' screenOptions={{ headerTitleAlign: 'center' }}>
           {/* Front Scanner */}
           <Stack.Screen name="screens/FrontScanScreen" options={{ title: 'Checkin online' }} />
 
