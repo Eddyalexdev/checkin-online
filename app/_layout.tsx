@@ -2,10 +2,13 @@ import React from 'react';
 import { Stack } from 'expo-router';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
 import { ScanProvider } from '@/context';
+import { StatusBar } from 'expo-status-bar';
 
 export default function Layout() {
   return (
     <SafeAreaProvider>
+      <StatusBar style="dark" />
+
       <ScanProvider>
         <Stack initialRouteName='screens/FrontScanScreen' screenOptions={{ headerTitleAlign: 'center' }}>
           {/* Front Scanner */}
@@ -19,6 +22,9 @@ export default function Layout() {
 
           {/* Form Personal Info */}
           <Stack.Screen name="screens/DocumentInfoScreen" options={{ title: 'Checkin online' }} />
+
+          {/* View Information */}
+          <Stack.Screen name="screens/ViewInformationScreen" options={{ title: 'View Information' }} />
         </Stack>
       </ScanProvider>
     </SafeAreaProvider>

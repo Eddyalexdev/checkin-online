@@ -66,7 +66,7 @@ const CustomInput = ({ control, name, placeholder, rules = {}, isPicker = false,
                     value={value}
                     onChangeText={onChange}
                     onBlur={onBlur}
-                    style={[styles.input, { height: 40, width: '100%' }]}
+                    style={[styles.input, { height: 40, width: hasWarning ? '90%' : '100%' }]}
                     placeholderTextColor="#999"
                   />
                   { 

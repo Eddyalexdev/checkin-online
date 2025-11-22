@@ -1,5 +1,3 @@
-import { Dispatch, useState, SetStateAction } from 'react';
-
 // Components
 import Checkbox from 'expo-checkbox';
 import { View, Text, StyleSheet, TouchableWithoutFeedback } from 'react-native';

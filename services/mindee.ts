@@ -1,7 +1,7 @@
 import * as FileSystem from 'expo-file-system/legacy';
 
-const apiKey = 'md_mvqHksE6pMTreijv9ZX2ETgio2Tw5GEt';
-const modelId = 'd9beeffa-b2a6-4f75-9b7c-dafa7e824946';
+const apiKey = process.env.MINDEE_API_KEY ?? "";
+const modelId = process.env.MINDEE_MODEL_ID ?? "";
 
 export const sendImageToMindee = async (uri: string) => {
   const fileBase64 = await FileSystem.readAsStringAsync(uri, { encoding: 'base64' });

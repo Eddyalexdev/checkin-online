@@ -1,36 +1,36 @@
-import { View, StyleSheet, Text, ActivityIndicator } from 'react-native';
+import { View, StyleSheet, Text, AccessibilityInfo } from 'react-native';
 import { Button, CheckboxRounded } from './';
 import { AntDesign } from '@expo/vector-icons'
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import { IRequirement } from '@/types';
 import { useScan } from '../hooks';
-import { MotiView } from 'moti';
+import { AnimatePresence, MotiView } from 'moti';
+import Loader from './Loader';
 
-// Props interface
 interface IProps {
   title: string;
   data: IRequirement[];
   handleScan?: () => void;
 }
 
-// Component
 const Card = ({ title, data, handleScan }: IProps) => {
   const [requirements, setRequirements] = useState<IRequirement[]>([]);
   const { takePicture, isLoading, statusText } = useScan();
+  const [reduceMotion, setReduceMotion] = useState(false);
 
-  // Functions
+  useEffect(() => {
+    AccessibilityInfo.isReduceMotionEnabled().then(setReduceMotion);
+  }, []);
+
+  useEffect(() => {
+    setRequirements(data.map(r => ({ ...r, checked: !!r.checked })));
+  }, [data]);
+
   const handleExecuteScan = async () => {
     const { status } = await takePicture();
-
-    if(!status) return;
-    
+    if (!status) return;
     handleScan && handleScan();
   }
-
-  // Update requirements state when data prop changes
-  useEffect(()=> {
-    setRequirements(data.map(r => ({ ...r, checked: !!r.checked })));
-  }, [data])
 
   const toggleRequirement = useCallback((id: number) => {
     setRequirements(prev =>
@@ -43,110 +43,94 @@ const Card = ({ title, data, handleScan }: IProps) => {
     [requirements]
   );
 
+  const baseTransition: any = { type: 'timing', duration: reduceMotion ? 0 : 420 };
 
   return (
-    <MotiView 
+    <MotiView
       from={{ opacity: 0, translateY: 100 }}
       animate={{ opacity: 1, translateY: 0 }}
-      transition={{ type: 'timing', duration: 500 }}
+      exit={{ opacity: 0, translateY: 120 }}
+      transition={baseTransition}
       style={styles.card}
     >
-      {
-        isLoading ?
-          <View style={{ marginBottom: 16, alignItems: 'center', height: 200, justifyContent: 'center' }}>
-            <View style={{ flexDirection: 'row', marginBottom: 16, height: 24 }}>
-              {[0, 1, 2].map((i) => (
+      <AnimatePresence>
+        {isLoading ? (
+          <MotiView
+            key="loader"
+            from={{ opacity: 0, translateY: 20 }}
+            animate={{ opacity: 1, translateY: 0 }}
+            exit={{ opacity: 0, translateY: -20 }}
+            transition={{ ...baseTransition, duration: reduceMotion ? 0 : 340 }}
+            style={{ marginBottom: 16, alignItems: 'center', height: 200, justifyContent: 'center' }}
+          >
+            <Loader text={statusText} />
+          </MotiView>
+        ) : (
+          <MotiView
+            key="content"
+            from={{ opacity: 0, translateY: 10 }}
+            animate={{ opacity: 1, translateY: 0 }}
+            exit={{ opacity: 0, translateY: -10 }}
+            transition={{ ...baseTransition, duration: reduceMotion ? 0 : 360 }}
+          >
+            <AntDesign
+              name="scan"
+              size={34}
+              color="#000000"
+              style={{ alignSelf: 'center', marginBottom: 16 }}
+            />
+
+            <MotiView
+              from={{ opacity: 0, translateX: -40 }}
+              animate={{ opacity: 1, translateX: 0 }}
+              exit={{ opacity: 0, translateX: -40 }}
+              transition={{ ...baseTransition, delay: 60 }}
+            >
+              <Text style={styles.cardTitle}>{title}</Text>
+            </MotiView>
+
+            <View style={styles.cardCheckboxContainer}>
+              {requirements?.map((requirement, index) => (
                 <MotiView
-                  key={i}
-                  from={{ scale: 0.5, opacity: 0.5 }}
-                  animate={{ scale: 1, opacity: 1 }}
+                  key={requirement.id}
+                  from={{ opacity: 0, translateX: -30 }}
+                  animate={{ opacity: 1, translateX: 0 }}
+                  exit={{ opacity: 0, translateX: -30 }}
                   transition={{
-                    type: 'timing',
-                    duration: 500,
-                    delay: i * 200,
-                    loop: true,
-                    repeatReverse: true,
+                    ...baseTransition,
+                    duration: reduceMotion ? 0 : 360,
+                    delay: reduceMotion ? 0 : index * 70,
                   }}
-                  style={{
-                    width: 12,
-                    height: 12,
-                    borderRadius: 6,
-                    backgroundColor: '#00ccc0',
-                    marginHorizontal: 4,
-                  }}
-                />
+                >
+                  <CheckboxRounded
+                    id={requirement.id}
+                    text={requirement.text}
+                    checked={requirement.checked}
+                    onToggle={() => toggleRequirement(requirement.id)}
+                  />
+                </MotiView>
               ))}
             </View>
+          </MotiView>
+        )}
+      </AnimatePresence>
 
-            <MotiView
-              from={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              transition={{ type: 'timing', duration: 1000, loop: true, repeatReverse: true }}
-            >
-              <Text style={{ textAlign: 'center', color: '#555', fontSize: 16 }}>
-                {statusText}
-              </Text>
-            </MotiView>
-          </View>
-          :
-          <AntDesign
-            name="scan"
-            size={34}
-            color="#000000"
-            style={{ alignSelf: 'center', marginBottom: 16 }}
-          />
-      }
-
-
-      {/* List of requeirements with checkboxes */}
-      {
-        !isLoading &&
-          <>
-            <MotiView
-              from={{ opacity: 0, translateX: -50 }}
-              animate={{ opacity: 1, translateX: 0 }}
-              transition={{ type: 'timing', duration: 500, delay: 100 }}
-            >
-              <Text style={styles.cardTitle}>{ title }</Text>
-            </MotiView>
-            <View style={styles.cardCheckboxContainer}>
-              {
-                requirements?.map((requirement, index) => (
-                  <MotiView
-                    key={requirement.id}
-                    from={{ opacity: 0, translateX: -50 }}
-                    animate={{ opacity: 1, translateX: 0 }}
-                    transition={{ type: 'timing', duration: 500, delay: index * 100 }}
-                  >
-                    <CheckboxRounded 
-                      id={requirement.id}
-                      text={requirement.text}
-                      checked={requirement.checked}
-                      onToggle={() => toggleRequirement(requirement.id)}
-                    />
-                  </MotiView>
-                ))
-              }
-            </View>
-          </>
-      }
-
+      {/* Scan Button */}
       <MotiView
         from={{ opacity: 0, translateY: 50 }}
         animate={{ opacity: 1, translateY: 0 }}
-        transition={{ type: 'timing', duration: 500, delay: 300 }}
+        transition={{ ...baseTransition, delay: 300 }}
       >
-        <Button 
-          text="Escanear" 
-          disabled={!allChecked || isLoading} 
+        <Button
+          text="Escanear"
+          disabled={!allChecked || isLoading}
           onClick={handleExecuteScan}
         />
       </MotiView>
     </MotiView>
-  )
-}
+  );
+};
 
-// Styles
 const styles = StyleSheet.create({
   card: {
     bottom: 0,
@@ -169,7 +153,7 @@ const styles = StyleSheet.create({
     textAlign: 'center',
     paddingHorizontal: 20,
   },
-  
+
   cardCheckboxContainer: {
     display: 'flex',
     flexDirection: 'column',
@@ -178,4 +162,4 @@ const styles = StyleSheet.create({
   }
 });
 
-export default Card
+export default Card;
