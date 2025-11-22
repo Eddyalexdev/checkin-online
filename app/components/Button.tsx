@@ -5,15 +5,19 @@ interface IProps {
   onClick?: () => void;
 }
 
-const Button = ({ text, disabled, onClick }: IProps) => {
+const Button = ({ text, disabled = false, onClick }: IProps) => {
   return (
     <TouchableOpacity
       activeOpacity={0.7}
       disabled={disabled}
+      onPress={() => {
+        if (disabled === true) return;
+        onClick && onClick();
+      }}
     >
       <Pressable
         onPress={() => {
-          if (disabled) return;
+          if (disabled === true) return;
           onClick && onClick();
         }}
         style={[

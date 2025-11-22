@@ -4,6 +4,7 @@ import { AntDesign } from '@expo/vector-icons'
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import { IRequirement } from '@/types';
 import { useScan } from '../hooks';
+import { MotiView } from 'moti';
 
 // Props interface
 interface IProps {
@@ -44,14 +45,48 @@ const Card = ({ title, data, handleScan }: IProps) => {
 
 
   return (
-    <View style={styles.card}>
+    <MotiView 
+      from={{ opacity: 0, translateY: 100 }}
+      animate={{ opacity: 1, translateY: 0 }}
+      transition={{ type: 'timing', duration: 500 }}
+      style={styles.card}
+    >
       {
         isLoading ?
-          <View style={{ marginBottom: 16, alignItems: 'center', height: 200 }}>
-            <ActivityIndicator size="large" color="#00ccc0" />
-            <Text style={{ textAlign: 'center', color: '#555', marginBottom: 8, fontSize: 16 }}>
-              {statusText}
-            </Text>
+          <View style={{ marginBottom: 16, alignItems: 'center', height: 200, justifyContent: 'center' }}>
+            <View style={{ flexDirection: 'row', marginBottom: 16, height: 24 }}>
+              {[0, 1, 2].map((i) => (
+                <MotiView
+                  key={i}
+                  from={{ scale: 0.5, opacity: 0.5 }}
+                  animate={{ scale: 1, opacity: 1 }}
+                  transition={{
+                    type: 'timing',
+                    duration: 500,
+                    delay: i * 200,
+                    loop: true,
+                    repeatReverse: true,
+                  }}
+                  style={{
+                    width: 12,
+                    height: 12,
+                    borderRadius: 6,
+                    backgroundColor: '#00ccc0',
+                    marginHorizontal: 4,
+                  }}
+                />
+              ))}
+            </View>
+
+            <MotiView
+              from={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              transition={{ type: 'timing', duration: 1000, loop: true, repeatReverse: true }}
+            >
+              <Text style={{ textAlign: 'center', color: '#555', fontSize: 16 }}>
+                {statusText}
+              </Text>
+            </MotiView>
           </View>
           :
           <AntDesign
@@ -66,30 +101,48 @@ const Card = ({ title, data, handleScan }: IProps) => {
       {/* List of requeirements with checkboxes */}
       {
         !isLoading &&
-        <>
-          <Text style={styles.cardTitle}>{ title }</Text>
-          <View style={styles.cardCheckboxContainer}>
-            {
-              requirements?.map((requirement) => (
-                <CheckboxRounded 
-                  key={requirement.id}
-                  id={requirement.id}
-                  text={requirement.text}
-                  checked={requirement.checked}
-                  onToggle={() => toggleRequirement(requirement.id)}
-                />
-              ))
-            }
-          </View>
-        </>
+          <>
+            <MotiView
+              from={{ opacity: 0, translateX: -50 }}
+              animate={{ opacity: 1, translateX: 0 }}
+              transition={{ type: 'timing', duration: 500, delay: 100 }}
+            >
+              <Text style={styles.cardTitle}>{ title }</Text>
+            </MotiView>
+            <View style={styles.cardCheckboxContainer}>
+              {
+                requirements?.map((requirement, index) => (
+                  <MotiView
+                    key={requirement.id}
+                    from={{ opacity: 0, translateX: -50 }}
+                    animate={{ opacity: 1, translateX: 0 }}
+                    transition={{ type: 'timing', duration: 500, delay: index * 100 }}
+                  >
+                    <CheckboxRounded 
+                      id={requirement.id}
+                      text={requirement.text}
+                      checked={requirement.checked}
+                      onToggle={() => toggleRequirement(requirement.id)}
+                    />
+                  </MotiView>
+                ))
+              }
+            </View>
+          </>
       }
 
-      <Button 
-        text="Escanear" 
-        disabled={!allChecked || isLoading} 
-        onClick={handleExecuteScan}
-      />
-    </View>
+      <MotiView
+        from={{ opacity: 0, translateY: 50 }}
+        animate={{ opacity: 1, translateY: 0 }}
+        transition={{ type: 'timing', duration: 500, delay: 300 }}
+      >
+        <Button 
+          text="Escanear" 
+          disabled={!allChecked || isLoading} 
+          onClick={handleExecuteScan}
+        />
+      </MotiView>
+    </MotiView>
   )
 }
 

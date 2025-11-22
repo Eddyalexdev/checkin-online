@@ -4,9 +4,11 @@ import { useForm } from "react-hook-form";
 import { useScan } from "../hooks";
 import { useEffect } from "react";
 import { IForm } from "@/types";
+import { useRouter } from "expo-router";
  
 const PersonalInfoScreen = () => {
   const { form: contextForm } = useScan();
+  const router = useRouter();
 
   const { control, handleSubmit, formState: { errors }, reset } = useForm<IForm>({
     defaultValues: contextForm ?? {
@@ -15,15 +17,22 @@ const PersonalInfoScreen = () => {
       secondLastName: '',
       gender: '',
       birthDate: {
-        day: '',
-        month: '',
-        year: '',
+        day: '1',
+        month: '1',
+        year: '2000',
       },
     },
   });
 
-  useEffect(() => {
+  const handleSendForm = (data: IForm) => {
+    console.log('Personal Info Form Data:', data);
+    router.push('/screens/DocumentInfoScreen');
+  }
 
+  useEffect(() => {
+    if(contextForm) {
+      reset(contextForm);
+    }
   }, [contextForm, reset])
 
   return (
@@ -38,19 +47,31 @@ const PersonalInfoScreen = () => {
           name="name" 
           placeholder="Nombre" 
           control={control}
-          rules={{ required: 'El nombre es obligatorio' }}
+          rules={{ 
+            required: 'El nombre es obligatorio', 
+            minLength: { value: 2, message: 'Debe tener al menos 2 caracteres' },
+            maxLength: { value: 50, message: 'No puede exceder los 50 caracteres' }
+          }}
         />
         <CustomInput 
           name="firstLastName" 
           placeholder="Primer Apellido"
           control={control}
-          rules={{ required: 'El nombre es obligatorio' }}
+          rules={{ 
+            required: 'El apellido es obligatorio', 
+            minLength: { value: 2, message: 'Debe tener al menos 2 caracteres' },
+            maxLength: { value: 50, message: 'No puede exceder los 50 caracteres' }
+          }}
         />
         <CustomInput 
           name="secondLastName"
           placeholder="Segundo Apellido"
           control={control}
-          rules={{ required: 'El nombre es obligatorio' }}
+          rules={{ 
+            required: 'El apellido es obligatorio', 
+            minLength: { value: 2, message: 'Debe tener al menos 2 caracteres' },
+            maxLength: { value: 50, message: 'No puede exceder los 50 caracteres' }
+          }}
         />
 
         <CustomInput 
@@ -63,13 +84,16 @@ const PersonalInfoScreen = () => {
             { label: 'Masculino', value: 'male' },
             { label: 'Femenino', value: 'female' },
           ]}
+          rules={{ 
+            required: 'El género es obligatorio' 
+          }}
         />
 
         <Text style={styles.subtitle}>Fecha de nacimiento</Text>
 
         <View style={styles.dateContainer}>
           <CustomInput 
-            name="day"
+            name="birthDate.day"
             placeholder="Dia"
             control={control}
             isPicker
@@ -78,7 +102,7 @@ const PersonalInfoScreen = () => {
           />
 
           <CustomInput 
-            name="month"
+            name="birthDate.month"
             placeholder="Mes"
             control={control}
             isPicker
@@ -100,21 +124,24 @@ const PersonalInfoScreen = () => {
           />
 
           <CustomInput 
-            name="year"
+            name="birthDate.year"
             placeholder="Año"
             control={control}
             isPicker
-            options={Array.from({ length: 25 }, (_, i) => {
-              const year = 2000 + i;
+            options={Array.from({ length: 221 }, (_, i) => {
+              const year = 1900 + i;
               return { label: `${year}`, value: `${year}` };
             })}
-            inputWidth={"38%"}
+            inputWidth={"35%"}
+            rules={{ 
+              validate: (value: any) => value >= 1900 || 'El año debe ser válido'
+            }}
           />
         </View>
         
         <Button
           text="Continuar"
-          onClick={() => console.log('Continuar clicked')}
+          onClick={handleSubmit(handleSendForm)}
         ></Button>
       </View>
     </View>
@@ -127,7 +154,7 @@ const styles = StyleSheet.create({
     height: '100%',
     width: '100%',
     paddingTop: 20,
-    paddingHorizontal: 40,
+    paddingHorizontal: 20,
   },
 
   formTitle: {
@@ -165,7 +192,6 @@ const styles = StyleSheet.create({
     display: 'flex',
     flexDirection: 'row',
     justifyContent: 'space-between',
-    gap: 10,
   },
 
   datePicker: {

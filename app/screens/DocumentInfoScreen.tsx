@@ -1,9 +1,34 @@
 import { StyleSheet, Text, View } from "react-native"
 import { Button, CustomInput } from "../components";
 import { useForm } from "react-hook-form";
+import { IForm } from "@/types";
+import { useScan } from "../hooks";
+import { useEffect } from "react";
+import { useRouter } from "expo-router";
 
 const DocumentInfoScreen = () => {
-  const { control, handleSubmit, formState: { errors } } = useForm();
+  const { form: contextForm } = useScan();
+  const router = useRouter();
+
+  const { control, handleSubmit, formState: { errors }, reset } = useForm<IForm>({
+    defaultValues: contextForm ?? {
+      nationality: 'Bolivia',
+      typeOfDocument: '',
+      idNumber: '',
+      supportNumber: '',
+    }
+  });
+
+  const handleSendForm = (data: IForm) => {
+    console.log('Personal Info Form Data:', data);
+    router.push('/screens/DocumentInfoScreen');
+  }
+
+  useEffect(() => {
+    if(contextForm) {
+      reset(contextForm);
+    }
+  }, [contextForm, reset])
 
   return (
     <View style={styles.form}>
@@ -14,86 +39,46 @@ const DocumentInfoScreen = () => {
       {/* Formulary */}
       <View style={styles.inputContainer}>
         <CustomInput 
-          name="name" 
-          placeholder="Nombre" 
-          control={control}
-          rules={{ required: 'El nombre es obligatorio' }}
-        />
-        <CustomInput 
-          name="firstLastName" 
-          placeholder="Primer Apellido"
-          control={control}
-          rules={{ required: 'El nombre es obligatorio' }}
-        />
-        <CustomInput 
-          name="secondLastName"
-          placeholder="Segundo Apellido"
-          control={control}
-          rules={{ required: 'El nombre es obligatorio' }}
-        />
-
-        <CustomInput 
-          name="gender"
-          placeholder="Género"
+          name="nationality"
+          placeholder="Nacionalidad"
           control={control}
           isPicker
           options={[
-            { label: 'Género', value: '' },
-            { label: 'Masculino', value: 'male' },
-            { label: 'Femenino', value: 'female' },
+            { label: 'Bolivia', value: 'Bolivia' },
+            { label: 'España', value: 'España' },
+            { label: 'Brasil', value: 'Brasil' },
           ]}
         />
 
-        <Text style={styles.subtitle}>Fecha de nacimiento</Text>
+        <CustomInput 
+          name="typeOfDocument"
+          placeholder="Tipo de documento"
+          control={control}
+          isPicker
+          options={[
+            { label: 'DNI', value: 'DNI' },
+            { label: 'Pasaporte', value: 'Pasaporte' },
+            { label: 'Carnet de conducir', value: 'Carnet de conducir' },
+            { label: 'NIE', value: 'NIE' },
+          ]}
+        />
 
-        <View style={styles.dateContainer}>
-          <CustomInput 
-            name="day"
-            placeholder="Dia"
-            control={control}
-            isPicker
-            options={Array.from({ length: 31 }, (_, i) => ({ label: `${i + 1}`, value: `${i + 1}` }))}
-            inputWidth={"31%"}
-          />
+        <CustomInput 
+          name="idNumber"
+          placeholder="Número documento de Identidad"
+          control={control}
+        />
 
-          <CustomInput 
-            name="month"
-            placeholder="Mes"
-            control={control}
-            isPicker
-            options={[
-              { label: '01', value: '1' },
-              { label: '02', value: '2' },
-              { label: '03', value: '3' },
-              { label: '04', value: '4' },
-              { label: '05', value: '5' },
-              { label: '06', value: '6' },
-              { label: '07', value: '7' },
-              { label: '08', value: '8' },
-              { label: '09', value: '9' },
-              { label: '10', value: '10' },
-              { label: '11', value: '11' },
-              { label: '12', value: '12' },
-            ]}
-            inputWidth={"31%"}
-          />
-
-          <CustomInput 
-            name="year"
-            placeholder="Año"
-            control={control}
-            isPicker
-            options={Array.from({ length: 25 }, (_, i) => {
-              const year = 2000 + i;
-              return { label: `${year}`, value: `${year}` };
-            })}
-            inputWidth={"38%"}
-          />
-        </View>
+        <CustomInput 
+          name="supportNumber"
+          placeholder="Número de soporte"
+          control={control}
+          hasWarning
+        />
         
         <Button
           text="Continuar"
-          onClick={() => console.log('Continuar clicked')}
+          onClick={() => handleSubmit(handleSendForm)}
         ></Button>
       </View>
     </View>

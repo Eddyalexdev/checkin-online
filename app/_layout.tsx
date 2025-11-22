@@ -7,18 +7,20 @@ export default function Layout() {
   return (
     <SafeAreaProvider>
       <ScanProvider>
-        <Stack initialRouteName="screens/FrontScanScreen">
+        <Stack initialRouteName='screens/PersonalInfoScreen' screenOptions={{ headerTitleAlign: 'center' }}>
           {/* Front Scanner */}
           <Stack.Screen name="screens/FrontScanScreen" options={{ title: 'Checkin online' }} />
 
           {/* Back Scanner */}
-          <Stack.Screen name="screens/BackScanScreen" options={{ title: 'Checkin online'  }} />
+          <Stack.Screen name="screens/BackScanScreen" options={{ title: 'Checkin online' }} />
 
           {/* Form Personal Info */}
-          <Stack.Screen name="screens/PersonalInfoScreen" options={{ title: 'Checkin online'  }} />
+          <Stack.Screen name="screens/PersonalInfoScreen" options={{ title: 'Checkin online' }} />
+
+          {/* Form Personal Info */}
+          <Stack.Screen name="screens/DocumentInfoScreen" options={{ title: 'Checkin online' }} />
         </Stack>
       </ScanProvider>
     </SafeAreaProvider>
   );
 }
-

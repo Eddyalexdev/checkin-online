@@ -18,12 +18,12 @@ export const ScanProvider = ({ children }: { children: ReactNode }) => {
     secondLastName: '',
     gender: '',
     birthDate: {
-      day: '',
-      month: '',
-      year: '',
+      day: '1',
+      month: '1',
+      year: '1900',
     },
     idNumber: '',
-    nationality: '',
+    nationality: 'Bolivia',
     typeOfDocument: '',
     supportNumber: '',
   });
@@ -78,7 +78,7 @@ export const ScanProvider = ({ children }: { children: ReactNode }) => {
     const result = await ImageManipulator.manipulateAsync(
       photo.uri,
       [{ crop: { originX, originY, width, height } }],
-      { compress: 1, format: ImageManipulator.SaveFormat.JPEG }
+      { compress: 0.5, format: ImageManipulator.SaveFormat.JPEG }
     );
 
     setScan({ photoUri: photo.uri, croppedUri: result.uri });
