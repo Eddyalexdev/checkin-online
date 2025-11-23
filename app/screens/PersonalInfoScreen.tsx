@@ -202,7 +202,7 @@ const styles = StyleSheet.create({
     flex: 1,
     backgroundColor: '#FFF',
     paddingHorizontal: 20,
-    paddingTop: 20,
+    paddingVertical: 20,
   },
   formContainer: {
     flex: 1,

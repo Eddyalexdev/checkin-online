@@ -103,7 +103,6 @@ const Card = ({ title, data, handleScan }: IProps) => {
                   }}
                 >
                   <CheckboxRounded
-                    id={requirement.id}
                     text={requirement.text}
                     checked={requirement.checked}
                     onToggle={() => toggleRequirement(requirement.id)}

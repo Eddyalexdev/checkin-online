@@ -10,7 +10,10 @@ export default function Layout() {
       <StatusBar style="dark" />
 
       <ScanProvider>
-        <Stack initialRouteName='screens/FrontScanScreen' screenOptions={{ headerTitleAlign: 'center' }}>
+        <Stack screenOptions={{ headerTitleAlign: 'center' }}>
+          {/* Home Screen */}
+          <Stack.Screen name="index" options={{ title: 'Checkin online' }} />
+
           {/* Front Scanner */}
           <Stack.Screen name="screens/FrontScanScreen" options={{ title: 'Checkin online' }} />
 

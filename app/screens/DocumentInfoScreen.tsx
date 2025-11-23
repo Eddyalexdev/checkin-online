@@ -78,6 +78,9 @@ const DocumentInfoScreen = () => {
     {
       name: 'idNumber',
       placeholder: 'Número documento de Identidad',
+      rules: {
+        required: 'El número de documento es obligatorio',
+      }
     },
     {
       name: 'supportNumber',
@@ -117,31 +120,34 @@ const DocumentInfoScreen = () => {
                 animate={{ opacity: 1 }}
                 exit={{ opacity: 0 }}
                 transition={{ type: 'timing', duration: reduceMotion ? 0 : 300 }}
-                style={{ width: '100%' }}
+                style={{ width: '100%', display: 'flex', flexDirection: 'column', justifyContent: 'space-between', height: '100%' }}
               >
-                {inputs.map((it, idx) => (
-                  <MotiView
-                    key={it.name}
-                    from={{ opacity: 0, translateY: 8 }}
-                    animate={{ opacity: 1, translateY: 0 }}
-                    exit={{ opacity: 0, translateY: 8 }}
-                    transition={{
-                      type: 'timing',
-                      duration: reduceMotion ? 0 : 360,
-                      delay: reduceMotion ? 0 : idx * 70,
-                    }}
-                    style={{ marginBottom: 12 }}
-                  >
-                    <CustomInput
-                      name={it.name as any}
-                      placeholder={it.placeholder}
-                      control={control}
-                      isPicker={it.isPicker}
-                      options={it.options}
-                      hasWarning={it.hasWarning}
-                    />
-                  </MotiView>
-                ))}
+                <View>
+                  {inputs.map((it, idx) => (
+                    <MotiView
+                      key={it.name}
+                      from={{ opacity: 0, translateY: 8 }}
+                      animate={{ opacity: 1, translateY: 0 }}
+                      exit={{ opacity: 0, translateY: 8 }}
+                      transition={{
+                        type: 'timing',
+                        duration: reduceMotion ? 0 : 360,
+                        delay: reduceMotion ? 0 : idx * 70,
+                      }}
+                      style={{ marginBottom: 12 }}
+                    >
+                      <CustomInput
+                        name={it.name as any}
+                        placeholder={it.placeholder}
+                        control={control}
+                        isPicker={it.isPicker}
+                        options={it.options}
+                        hasWarning={it.hasWarning}
+                        rules={it.rules}
+                      />
+                    </MotiView>
+                  ))}
+                </View>
 
                 <MotiView
                   from={{ opacity: 0, scale: 0.98 }}
@@ -166,7 +172,7 @@ const styles = StyleSheet.create({
     flex: 1,
     backgroundColor: '#FFFFFF',
     width: '100%',
-    paddingTop: 20,
+    paddingVertical: 20,
     paddingHorizontal: 40,
   },
 
