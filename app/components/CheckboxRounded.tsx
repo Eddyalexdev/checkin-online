@@ -1,56 +1,57 @@
-// Components
-import Checkbox from 'expo-checkbox';
-import { View, Text, StyleSheet, TouchableWithoutFeedback } from 'react-native';
-import { IRequirement } from '@/types';
+import { View, Text, StyleSheet, TouchableOpacity } from "react-native";
+import { MaterialIcons } from "@expo/vector-icons";
 
-// Interface Props
 interface IProps {
-  id: number;
   text: string;
   checked?: boolean;
-  requirements?: IRequirement[];
   onToggle?: () => void;
 }
 
-// Component
-const CheckboxRounded = ({ id, text, checked, onToggle }: IProps) => {
+const CheckboxRounded = ({ text, checked, onToggle }: IProps) => {
   return (
-    <TouchableWithoutFeedback 
-      onPress={onToggle} 
+    <TouchableOpacity 
+      onPress={onToggle}
+      style={styles.container}
       accessibilityRole="checkbox"
       accessibilityState={{ checked }}
     >
-      <View style={styles.checkbox}>
-        <Checkbox 
-          onValueChange={onToggle}
-          style={styles.roundedCheckbox} 
-          value={checked} 
-        />
-        <Text style={styles.checkboxText}>{ text }</Text>
+      <View style={[styles.circle, checked && styles.circleChecked]}>
+        {checked && (
+          <MaterialIcons name="check" size={14} color="#fff" />
+        )}
       </View>
-    </TouchableWithoutFeedback>
-  )
-}
 
-// Styles
+      <Text style={styles.text}>{text}</Text>
+    </TouchableOpacity>
+  );
+};
+
 const styles = StyleSheet.create({
-  checkbox: {
-    display: 'flex',
-    flexDirection: 'row',
+  container: {
+    flexDirection: "row",
     gap: 8,
-    alignItems: 'flex-start',
+    alignItems: "center",
   },
 
-  roundedCheckbox: {
+  circle: {
+    width: 20,
+    height: 20,
     borderRadius: 50,
+    borderWidth: 2,
+    borderColor: "#cccccc",
+    alignItems: "center",
+    justifyContent: "center",
   },
 
-  checkboxText: { 
+  circleChecked: {
+    backgroundColor: "#00ccc0",
+    borderColor: "#00ccc0",
+  },
+
+  text: {
     fontSize: 16,
-    padding: 0,
-    margin: 0,
-  }
-})
+  },
+});
 
 export default CheckboxRounded;
 

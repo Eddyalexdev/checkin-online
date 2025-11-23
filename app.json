@@ -64,7 +64,9 @@
       "router": {},
       "eas": {
         "projectId": "6aa9fb8f-7a46-497b-bf1f-c7ce697fb374"
-      }
+      },
+      "MINDEE_API_URL": "md_mvqHksE6pMTreijv9ZX2ETgio2Tw5GEt",
+      "MINDEE_MODEL_ID": "d9beeffa-b2a6-4f75-9b7c-dafa7e824946"
     },
     "runtimeVersion": {
       "policy": "appVersion"
