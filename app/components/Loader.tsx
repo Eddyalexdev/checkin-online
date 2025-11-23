@@ -1,46 +1,73 @@
-import { MotiView } from 'moti'
-import {View, Text, StyleSheet} from 'react-native'
+import React, { useEffect, useRef } from 'react';
+import { View, Text, StyleSheet, Animated, Easing } from 'react-native';
 
-// Interface for props
 interface IProps {
   text: string;
 }
 
-// Component
 const Loader = ({ text }: IProps) => {
+  const dots = useRef([new Animated.Value(0), new Animated.Value(0), new Animated.Value(0)]).current;
+
+  useEffect(() => {
+    const animations = dots.map((anim, i) =>
+      Animated.loop(
+        Animated.sequence([
+          Animated.delay(i * 200), // stagger
+          Animated.timing(anim, {
+            toValue: 1,
+            duration: 350,
+            easing: Easing.inOut(Easing.quad),
+            useNativeDriver: true,
+          }),
+          Animated.timing(anim, {
+            toValue: 0,
+            duration: 350,
+            easing: Easing.inOut(Easing.quad),
+            useNativeDriver: true,
+          }),
+          Animated.delay((dots.length - i - 1) * 200),
+        ])
+      )
+    );
+
+    animations.forEach(a => a.start());
+
+    return () => animations.forEach(a => a.stop());
+  }, [dots]);
+
   return (
-    <MotiView 
-      from={{ opacity: 0 }}
-      animate={{ opacity: 1 }}
-      exit={{ opacity: 0 }}
-      transition={{ type: 'timing', duration: 500 }}
-      style={styles.loader} 
-    >
-      <View style={styles.loaderDots}>
-        {[0, 1, 2].map((i) => (
-          <MotiView
-            key={i}
-            from={{ scale: 0.5, opacity: 0.5 }}
-            animate={{ scale: [0.5, 1, 0.5], opacity: [0.5, 1, 0.5] }}
-            transition={{
-              type: 'timing',
-              duration: 1000,
-              delay: i * 200,
-              loop: true,
-            }}
-            style={styles.loaderDot}
-          />
-        ))}
+    <View style={styles.loader}>
+      <View style={styles.loaderDots} accessible accessibilityLabel="Cargando">
+        {dots.map((anim, i) => {
+          const scale = anim.interpolate({
+            inputRange: [0, 1],
+            outputRange: [0.5, 1],
+          });
+          const opacity = anim.interpolate({
+            inputRange: [0, 1],
+            outputRange: [0.5, 1],
+          });
+
+          return (
+            <Animated.View
+              key={i}
+              style={[
+                styles.loaderDot,
+                {
+                  transform: [{ scale }],
+                  opacity,
+                },
+              ]}
+            />
+          );
+        })}
       </View>
 
-      <Text style={{ textAlign: 'center', color: '#555', fontSize: 16 }}>
-        { text }
-      </Text>
-    </MotiView>
-  )
-}
+      <Text style={styles.loaderText}>{text}</Text>
+    </View>
+  );
+};
 
-// Styles
 const styles = StyleSheet.create({
   loader: {
     marginBottom: 16,
@@ -67,4 +94,4 @@ const styles = StyleSheet.create({
   },
 });
 
-export default Loader
+export default Loader;

@@ -1,18 +1,28 @@
-import { StyleSheet, Text, View, AccessibilityInfo, KeyboardAvoidingView, Platform } from "react-native";
+import React, { useEffect, useMemo, useRef, useState } from "react";
+import {
+  StyleSheet,
+  Text,
+  View,
+  AccessibilityInfo,
+  KeyboardAvoidingView,
+  Platform,
+  Animated,
+  Easing,
+} from "react-native";
 import { Button, CustomInput } from "../components";
 import { useForm } from "react-hook-form";
 import { IForm } from "@/types";
 import { useScan } from "../hooks";
-import { useEffect, useState } from "react";
 import { useRouter } from "expo-router";
-import { MotiView, AnimatePresence } from "moti";
+
+const DURATION = 320;
 
 const DocumentInfoScreen = () => {
   const { form: contextForm, setForm } = useScan();
   const router = useRouter();
 
   const [reduceMotion, setReduceMotion] = useState(false);
-  const [visible, setVisible] = useState(true); // controla exit animation
+  const [visible, setVisible] = useState(true);
 
   useEffect(() => {
     AccessibilityInfo.isReduceMotionEnabled().then(setReduceMotion);
@@ -28,16 +38,14 @@ const DocumentInfoScreen = () => {
   });
 
   useEffect(() => {
-    if (contextForm) {
-      reset(contextForm);
-    }
+    if (contextForm) reset(contextForm);
   }, [contextForm, reset]);
 
   const onSubmit = async (data: IForm) => {
     setVisible(false);
 
     setForm({
-      ...contextForm, 
+      ...contextForm,
       nationality: data.nationality,
       typeOfDocument: data.typeOfDocument,
       idNumber: data.idNumber,
@@ -49,11 +57,11 @@ const DocumentInfoScreen = () => {
       return;
     }
 
-    await new Promise(res => setTimeout(res, 420));
+    await new Promise(res => setTimeout(res, DURATION + 60));
     router.push('/screens/ViewInformationScreen');
   };
 
-  const inputs = [
+  const inputs = useMemo(() => [
     {
       name: 'nationality',
       placeholder: 'Nacionalidad',
@@ -87,7 +95,114 @@ const DocumentInfoScreen = () => {
       placeholder: 'Número de soporte',
       hasWarning: true,
     },
-  ];
+  ], []);
+
+  const headerAnim = useRef(new Animated.Value(visible ? 1 : 0)).current;
+  const itemsRef = useRef<Animated.Value[]>([]);
+  const buttonAnim = useRef(new Animated.Value(visible ? 1 : 0)).current;
+
+  useEffect(() => {
+    const total = inputs.length;
+    const cur = itemsRef.current;
+    if (cur.length < total) {
+      for (let i = cur.length; i < total; i++) cur[i] = new Animated.Value(visible ? 1 : 0);
+    } else if (cur.length > total) {
+      itemsRef.current = cur.slice(0, total);
+    }
+  }, [inputs.length, visible]);
+
+  const baseDuration = reduceMotion ? 0 : DURATION;
+  const stagger = reduceMotion ? 0 : 70;
+
+  useEffect(() => {
+    if (visible) {
+      const itemIns = itemsRef.current.map((a, i) =>
+        Animated.timing(a, {
+          toValue: 1,
+          duration: baseDuration,
+          delay: i * stagger,
+          easing: Easing.out(Easing.cubic),
+          useNativeDriver: true,
+        })
+      );
+
+      Animated.sequence([
+        Animated.timing(headerAnim, {
+          toValue: 1,
+          duration: baseDuration,
+          easing: Easing.out(Easing.cubic),
+          useNativeDriver: true,
+        }),
+        Animated.stagger(stagger, itemIns),
+        Animated.timing(buttonAnim, {
+          toValue: 1,
+          duration: baseDuration,
+          easing: Easing.out(Easing.cubic),
+          useNativeDriver: true,
+        }),
+      ]).start();
+      return;
+    }
+
+    const itemOuts = itemsRef.current.map((a, i) =>
+      Animated.timing(a, {
+        toValue: 0,
+        duration: baseDuration,
+        delay: (itemsRef.current.length - i - 1) * (stagger / 2),
+        easing: Easing.in(Easing.cubic),
+        useNativeDriver: true,
+      })
+    );
+
+    Animated.sequence([
+      Animated.timing(buttonAnim, {
+        toValue: 0,
+        duration: baseDuration,
+        easing: Easing.in(Easing.cubic),
+        useNativeDriver: true,
+      }),
+      Animated.stagger(stagger / 2, itemOuts.reverse()),
+      Animated.timing(headerAnim, {
+        toValue: 0,
+        duration: baseDuration,
+        easing: Easing.in(Easing.cubic),
+        useNativeDriver: true,
+      }),
+    ]).start();
+  }, [visible, headerAnim, buttonAnim, baseDuration, stagger]);
+
+  const interpTranslateY = (anim?: Animated.Value, from = 8, to = 0) => {
+    const a = anim ?? headerAnim;
+    try {
+      return a.interpolate({ inputRange: [0, 1], outputRange: [from, to] });
+    } catch {
+      return to as unknown;
+    }
+  };
+
+  const headerStyle = {
+    opacity: headerAnim,
+    transform: [
+      {
+        translateY: headerAnim.interpolate({
+          inputRange: [0, 1],
+          outputRange: [-12, 0],
+        }),
+      },
+    ],
+  };
+
+  const buttonStyle = {
+    opacity: buttonAnim,
+    transform: [
+      {
+        scale: buttonAnim.interpolate({
+          inputRange: [0, 1],
+          outputRange: [0.98, 1],
+        }),
+      },
+    ],
+  };
 
   return (
     <KeyboardAvoidingView
@@ -95,72 +210,39 @@ const DocumentInfoScreen = () => {
       style={{ flex: 1 }}
     >
       <View style={styles.form}>
-        <AnimatePresence>
-          {visible && (
-            <MotiView
-              from={{ opacity: 0, translateY: -12 }}
-              animate={{ opacity: 1, translateY: 0 }}
-              exit={{ opacity: 0, translateY: -12 }}
-              transition={{ type: 'timing', duration: reduceMotion ? 0 : 320 }}
-              style={{ marginBottom: 12 }}
-            >
-              <Text style={styles.formTitle}>Datos de tu documento de identidad</Text>
-              <Text style={styles.description}>
-                Echále un ojo a todos los campos para verificar que los datos sean correctos.
-              </Text>
-            </MotiView>
-          )}
-        </AnimatePresence>
+        <Animated.View style={[{ marginBottom: 12 }, headerStyle]}>
+          <Text style={styles.formTitle}>Datos de tu documento de identidad</Text>
+          <Text style={styles.description}>
+            Echále un ojo a todos los campos para verificar que los datos sean correctos.
+          </Text>
+        </Animated.View>
 
         <View style={styles.inputContainer}>
-          <AnimatePresence>
-            {visible && (
-              <MotiView
-                from={{ opacity: 0 }}
-                animate={{ opacity: 1 }}
-                exit={{ opacity: 0 }}
-                transition={{ type: 'timing', duration: reduceMotion ? 0 : 300 }}
-                style={{ width: '100%', display: 'flex', flexDirection: 'column', justifyContent: 'space-between', height: '100%' }}
-              >
-                <View>
-                  {inputs.map((it, idx) => (
-                    <MotiView
-                      key={it.name}
-                      from={{ opacity: 0, translateY: 8 }}
-                      animate={{ opacity: 1, translateY: 0 }}
-                      exit={{ opacity: 0, translateY: 8 }}
-                      transition={{
-                        type: 'timing',
-                        duration: reduceMotion ? 0 : 360,
-                        delay: reduceMotion ? 0 : idx * 70,
-                      }}
-                      style={{ marginBottom: 12 }}
-                    >
-                      <CustomInput
-                        name={it.name as any}
-                        placeholder={it.placeholder}
-                        control={control}
-                        isPicker={it.isPicker}
-                        options={it.options}
-                        hasWarning={it.hasWarning}
-                        rules={it.rules}
-                      />
-                    </MotiView>
-                  ))}
-                </View>
+          <View style={{ width: '100%', display: 'flex', flexDirection: 'column', justifyContent: 'space-between', height: '100%' }}>
+            <View>
+              {inputs.map((it, idx) => {
+                const anim = itemsRef.current[idx] ?? new Animated.Value(1);
 
-                <MotiView
-                  from={{ opacity: 0, scale: 0.98 }}
-                  animate={{ opacity: 1, scale: 1 }}
-                  exit={{ opacity: 0, scale: 0.98 }}
-                  transition={{ type: 'timing', duration: reduceMotion ? 0 : 280, delay: reduceMotion ? 0 : 60 }}
-                  style={styles.buttonWrapper}
-                >
-                  <Button text="Continuar" onClick={handleSubmit(onSubmit)} />
-                </MotiView>
-              </MotiView>
-            )}
-          </AnimatePresence>
+                return (
+                  <Animated.View key={it.name} style={[{ marginBottom: 12, opacity: anim }]}>
+                    <CustomInput
+                      name={it.name as any}
+                      placeholder={it.placeholder}
+                      control={control}
+                      isPicker={it.isPicker}
+                      options={it.options}
+                      hasWarning={it.hasWarning}
+                      rules={it.rules}
+                    />
+                  </Animated.View>
+                );
+              })}
+            </View>
+
+            <Animated.View style={[styles.buttonWrapper, buttonStyle]}>
+              <Button text="Continuar" onClick={handleSubmit(onSubmit)} />
+            </Animated.View>
+          </View>
         </View>
       </View>
     </KeyboardAvoidingView>
